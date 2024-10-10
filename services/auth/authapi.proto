@@ -16,6 +16,7 @@ message VerifyTokenResponse {
 
 message GenerateTokenRequest {
   string user_id = 1;
+  string id_of_user = 2;
 }
 
 message RefreshTokenRequest {
