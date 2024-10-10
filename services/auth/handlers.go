@@ -104,7 +104,7 @@ func (s *Service) RefreshToken(ctx context.Context, r *pb.RefreshTokenRequest) (
 
 	// check if refresh token is in db, if it's valid and if the access uuid matches the one in the jwt
 	rt, err := s.db.GetRefreshToken(nil, tkn.ID)
-if err != nil || rt.AccessTokenID != tkn.AccessTokenID || rt.ExpiresAt.Before(time.Now()) {
+	if err == nil || rt.AccessTokenID != tkn.AccessTokenID || rt.ExpiresAt.Before(time.Now()) {
 		return nil, er.NotAuthenticatedf("invalid refresh token")
 	}
 
