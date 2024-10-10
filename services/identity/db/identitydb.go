@@ -15,6 +15,7 @@ type IdentityDB interface {
 
 	CreateUser(db.Tx, *m.User) (string, error)
 	GetUser(db.Tx, string) (*m.User, error)
+	FetchUser(db.Tx, string) (*m.User, error)
 	GetUserByEmail(db.Tx, string) (*m.User, error)
 
 	CreateCompany(db.Tx, *m.Company) (string, error)
@@ -38,6 +39,15 @@ func (d *DB) CreateUser(tx db.Tx, u *m.User) (string, error) {
 }
 
 func (d *DB) GetUser(tx db.Tx, id string) (*m.User, error) {
+	row := d.QueryRowStmt(tx, getUserByIdStmt, id)
+	user := &m.User{}
+	if err := row.Scan(&user.ID, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.CreatedAt); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (d *DB) FetchUser(tx db.Tx, id string) (*m.User, error) {
 	row := d.QueryRowStmt(tx, getUserByIdStmt, id)
 	user := &m.User{}
 	if err := row.Scan(&user.ID, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.CreatedAt); err != nil {
