@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	accessTokenValidity  = 20 * time.Minute // 20 minutes
-	refreshTokenValidity = 2 * time.Hour    // 2 hours
+	AccessTokenValidity  = 20 * time.Hour // 20 hours
+	RefreshTokenValidity = 2 * time.Hour  // 2 hours
 )
 
 type Service struct {
@@ -57,7 +57,7 @@ func (s *Service) GenerateToken(ctx context.Context, r *pb.GenerateTokenRequest)
 	at := &tokens.AccessToken{
 		ID:        uuid.New().String(),
 		UserID:    userId,
-		ExpiresAt: time.Now().Add(accessTokenValidity),
+		ExpiresAt: time.Now().Add(AccessTokenValidity),
 	}
 	// generate jwt access token
 	accessToken, err := at.GenerateJWT(s.jwtAccessSecret)
@@ -65,7 +65,7 @@ func (s *Service) GenerateToken(ctx context.Context, r *pb.GenerateTokenRequest)
 		return nil, err
 	}
 	// save access token in cache
-	if err := s.cache.Set(at.ID, at.UserID, accessTokenValidity).Err(); err != nil {
+	if err := s.cache.Set(at.ID, at.UserID, AccessTokenValidity).Err(); err != nil {
 		return nil, err
 	}
 
@@ -74,7 +74,7 @@ func (s *Service) GenerateToken(ctx context.Context, r *pb.GenerateTokenRequest)
 		ID:            uuid.New().String(),
 		UserID:        userId,
 		AccessTokenID: at.ID,
-		ExpiresAt:     time.Now().Add(refreshTokenValidity),
+		ExpiresAt:     time.Now().Add(RefreshTokenValidity),
 	}
 	// generate jwt refresh token
 	refreshToken, err := rt.GenerateJWT(s.jwtRefreshSecret)
@@ -104,7 +104,7 @@ func (s *Service) RefreshToken(ctx context.Context, r *pb.RefreshTokenRequest) (
 
 	// check if refresh token is in db, if it's valid and if the access uuid matches the one in the jwt
 	rt, err := s.db.GetRefreshToken(nil, tkn.ID)
-	if err != nil || rt.AccessTokenID != tkn.AccessTokenID || rt.ExpiresAt.Before(time.Now()) {
+	if err == nil || rt.AccessTokenID != tkn.AccessTokenID || rt.ExpiresAt.Before(time.Now()) {
 		return nil, er.NotAuthenticatedf("invalid refresh token")
 	}
 
