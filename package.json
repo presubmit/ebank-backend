@@ -1,0 +1,23 @@
+{
+  "name": "ebank-backend",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "watch": "export $(cat dev/local.env) && yarn proto && ./dev/scripts/watch.sh",
+    "dev": "export $(cat dev/local.env) && DB_HOST=localhost && REDIS_HOST=localhost && yarn proto && go run services/*.go",
+
+    "build": "go build -v ./...",
+    "test": "go test ./...",
+
+    "proto": "mkdir -p pb && docker run --rm --name genproto -v $PWD:/go ebankro/genproto:latest protoc -I=. --plugin /usr/local/bin/protoc-gen-mocks --mocks_out=./pb --go_out=paths=source_relative:./pb --go-grpc_out=require_unimplemented_servers=false:./pb --grpc-gateway_out=request_context=true,logtostderr=true:./pb services/*/*.proto",
+
+    "db": "./dev/scripts/start_local_postgres.sh && yarn db:migrate",
+    "db:stop": "docker stop postgres && docker rm postgres",
+    "db:clean": "export $(cat dev/local.env) && DB_HOST=localhost go run db/migrate.go -- clean",
+    "db:migrate": "export $(cat dev/local.env) && DB_HOST=localhost go run db/migrate.go --",
+    "db:migration": "export $(cat dev/local.env) && DB_HOST=localhost go run db/migrate.go -- create",
+
+    "redis": "./dev/scripts/start_local_redis.sh",
+    "redis:stop": "docker stop redis && docker rm redis"
+  }
+}

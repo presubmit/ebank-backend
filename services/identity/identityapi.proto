@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package identity;
+
+import "services/proto/googleapi/annotations.proto";
+
+option go_package = "services/identity";
+
+message Empty {}
+
+message RegisterUserRequest {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  string password = 4;
+} 
+
+message LoginUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthResponse { 
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+}
+
+message Employee {
+  string id = 1;
+  string user_id = 2;
+  string company_id = 3;
+  string email = 4;
+  string role = 5;
+}
+
+message CreateCompanyRequest {
+  string name = 1;
+}
+
+message Company {
+  string id = 1;
+  string name = 2;
+}
+
+message Companies {
+    repeated Company companies = 1;
+}
+
+service IdentityService {
+  // Users
+  rpc RegisterUser(RegisterUserRequest) returns (AuthResponse) {
+    option (google.api.http) = {
+      post: "/user/register",
+      body: "*"
+    };
+  }
+  rpc LoginUser(LoginUserRequest) returns (AuthResponse) {
+    option (google.api.http) = {
+      post: "/user/login",
+      body: "*"
+    };
+  }
+  rpc GetCurrentUser(Empty) returns (User) {
+    option (google.api.http) = {
+      get: "/user"
+    };
+  }
+
+  // Companies
+  rpc CreateCompany(CreateCompanyRequest) returns (Company) {
+      option (google.api.http) = {
+          post: "/companies",
+          body: "*"
+      };
+  }
+  rpc GetCompanies(Empty) returns (Companies) {
+      option (google.api.http) = {
+          get: "/companies"
+      };
+  }
+
+  // Employees
+  rpc VerifyEmployee(Employee) returns (Employee) {}
+}

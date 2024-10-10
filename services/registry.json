@@ -1,0 +1,20 @@
+{
+  "services": [
+    {
+      "id": "api",
+      "gateway": true
+    },
+    {
+      "id": "auth"
+    },
+    {
+      "id": "card"
+    },
+    {
+      "id": "identity"
+    },
+    {
+      "id": "ledger"
+    }
+  ]
+}

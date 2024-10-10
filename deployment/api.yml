@@ -1,0 +1,48 @@
+# The hello service provides a load-balancing proxy over the hello-app
+# pods. By specifying the type as a 'LoadBalancer', Kubernetes Engine will
+# create an external HTTP load balancer.
+apiVersion: v1
+kind: Service
+metadata:
+  name: apisvc
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    app: apisvc
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apisvc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apisvc
+  template:
+    metadata:
+      labels:
+        app: apisvc
+    spec:
+      containers:
+        - name: apisvc
+          image: gcr.io/ebank-299413/api:latest
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          envFrom:
+            - configMapRef:
+                name: service-env

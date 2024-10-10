@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package models;
+
+option go_package = "ebank/pb/services/proto";
+
+message Employee {
+  int32 test3 = 1;
+}

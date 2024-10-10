@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ebank-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: web
+              servicePort: 80
+          - path: /api/*
+            backend:
+              serviceName: apisvc
+              servicePort: 8080

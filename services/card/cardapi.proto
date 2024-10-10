@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package card;
+
+import "services/proto/googleapi/annotations.proto";
+
+option go_package = "services/card";
+
+message GetCardProductsRequest  {}
+
+message CreateRequest {
+    string card_product_id = 1;
+    string cardholder_id = 2;
+}
+
+message CardProducts {
+    repeated CardProduct products = 1;   
+}
+
+message CardProduct {
+    string id = 1;
+    string brand = 2;
+    string type = 3;
+}
+
+message Card {
+    string id = 1;
+    string brand = 2;
+    string number = 3;
+    int32 expiration_month = 4;
+    int32 expiration_year = 5;
+    string security_code = 6;
+    string type = 7;
+    string frozen_at = 8;
+    string closed_at = 9;
+}
+
+message Cards {
+    repeated Card cards = 1;
+}
+
+message GetCompanyCardsRequest {}
+
+message GetCardRequest {
+    string card_id = 1;
+}
+
+message FreezeRequest {
+    string card_id = 1;
+}
+
+message UnfreezeRequest {
+    string card_id = 1;
+}
+
+message CloseRequest {
+    string card_id = 1;
+}
+
+service CardService {
+    rpc GetCardProducts(GetCardProductsRequest) returns (CardProducts) {
+        option (google.api.http) = {
+            get: "/card-products",
+        };
+    };
+    rpc Create(CreateRequest) returns (Card) {
+        option (google.api.http) = {
+            post: "/cards",
+            body: "*"
+        };
+    };
+    rpc GetCompanyCards(GetCompanyCardsRequest) returns (Cards) {
+        option (google.api.http) = {
+            get: "/cards",
+        };
+    }
+    rpc GetCard(GetCardRequest) returns (Card) {
+        option (google.api.http) = {
+            get: "/cards/{card_id}"
+          };
+    }
+    rpc Freeze(FreezeRequest) returns (Card) {
+        option (google.api.http) = {
+            post: "/cards/{card_id}/freeze",
+            body: "*"
+        };
+    }
+    rpc Unfreeze(UnfreezeRequest) returns (Card) {
+        option (google.api.http) = {
+            post: "/cards/{card_id}/unfreeze",
+            body: "*"
+        };
+    }
+    rpc Close(CloseRequest) returns (Card) {
+        option (google.api.http) = {
+            post: "/cards/{card_id}/close"
+            body: "*"
+        };
+    }
+}

@@ -1,0 +1,67 @@
+# The hello service provides a load-balancing proxy over the hello-app
+# pods. By specifying the type as a 'LoadBalancer', Kubernetes Engine will
+# create an external HTTP load balancer.
+apiVersion: v1
+kind: Service
+metadata:
+  name: authsvc
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    app: authsvc
+  ports:
+    - port: 8079
+      protocol: TCP
+      targetPort: 8079
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authsvc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authsvc
+  template:
+    metadata:
+      labels:
+        app: authsvc
+    spec:
+      serviceAccountName: ebank-proxy
+      containers:
+        - name: authsvc
+          image: gcr.io/ebank-299413/auth:latest
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 8079
+          readinessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:8079"]
+            initialDelaySeconds: 5
+          livenessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:8079"]
+            initialDelaySeconds: 10
+          envFrom:
+            - configMapRef:
+                name: service-env
+        - name: cloud-sql-proxy
+          # It is recommended to use the latest version of the Cloud SQL proxy
+          # Make sure to update on a regular schedule!
+          image: gcr.io/cloudsql-docker/gce-proxy:1.17
+          command:
+            - "/cloud_sql_proxy"
+
+            # If connecting from a VPC-native GKE cluster, you can use the
+            # following flag to have the proxy connect over private IP
+            # - "-ip_address_types=PRIVATE"
+
+            # Replace DB_PORT with the port the proxy should listen on
+            # Defaults: MySQL: 3306, Postgres: 5432, SQLServer: 1433
+            - "-instances=ebank-299413:europe-west3:ebank=tcp:5432"
+          securityContext:
+            # The default Cloud SQL proxy image runs as the
+            # "nonroot" user and group (uid: 65532) by default.
+            runAsNonRoot: true

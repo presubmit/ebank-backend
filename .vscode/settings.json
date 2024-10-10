@@ -1,0 +1,17 @@
+{
+  "protoc": {
+    "path": "/usr/local/bin/protoc",
+    "options": ["--proto_path=proto/"]
+  },
+  "files.exclude": {
+    "pb": true,
+    "deployment": true,
+    "vendor": true,
+    ".tmp": true,
+    "go.sum": true,
+    "go.mod": true,
+    ".db": true,
+    ".redis": true
+  },
+  "go.lintTool": "golangci-lint"
+}
