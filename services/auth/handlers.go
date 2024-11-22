@@ -34,6 +34,10 @@ func NewService(jwtAccessSecret, jwtRefreshSecret string) *Service {
 	}
 }
 
+func helperSum(a, b int) int {
+	return a + b
+}
+
 func (s *Service) VerifyToken(ctx context.Context, r *pb.VerifyTokenRequest) (*pb.VerifyTokenResponse, error) {
 	td, err := tokens.ParseAccessToken(r.GetAccessToken(), s.jwtAccessSecret)
 	if err != nil {
